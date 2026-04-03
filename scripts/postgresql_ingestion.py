@@ -133,9 +133,7 @@ def postgres_to_s3():
 
                 rows, cols = df.shape
                 logger.info(
-                    f"  Retrieved {
-                        rows:,} rows, {cols} columns in {
-                        query_duration:.2f}s")
+                    f"  Retrieved {rows:,} rows, {cols} columns in {query_duration:.2f}s")
 
                 if df.empty:
                     logger.warning(
