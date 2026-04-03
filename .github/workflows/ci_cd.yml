@@ -22,7 +22,7 @@ jobs:
           pip install flake8 black pytest
 
       - name: Lint
-        run: flake8 scripts dags
+        run: flake8 scripts dags --max-line-length = 120
 
       - name: Format Check
         run: black --check .

@@ -148,9 +148,7 @@ def postgres_to_s3():
                 df.to_parquet(buffer, engine='pyarrow', index=False)
                 parquet_size = buffer.tell()
                 logger.info(
-                    f"  Parquet file size: {
-                        parquet_size:,} bytes ({
-                        parquet_size / 1024 / 1024:.2f} MB)")
+                    f"  Parquet file size: {parquet_size:,} bytes ({parquet_size / 1024 / 1024:.2f} MB)")
 
                 # Upload to S3
                 s3_key = f"bronze/postgres/sales/{table}.parquet"
