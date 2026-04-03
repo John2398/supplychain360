@@ -30,21 +30,22 @@ source_s3 = boto3.client(
     's3',
     aws_access_key_id=SOURCE_ACCESS_KEY,
     aws_secret_access_key=SOURCE_SECRET_KEY,
-    region_name = 'eu-west-2'
+    region_name='eu-west-2'
 )
 
 destination_s3 = boto3.client(
     's3',
     aws_access_key_id=DESTINATION_AWS_ACCESS_KEY,
     aws_secret_access_key=DESTINATION_AWS_SECRET_ACCESS_KEY,
-    region_name = 'eu-north-1'
-    )
+    region_name='eu-north-1'
+)
 
-def transfer_s3_object(object_key, max_retries = 5, delay = 5):
+
+def transfer_s3_object(object_key, max_retries=5, delay=5):
     if object_key.endswith('/'):
         logging.info(f"Skipping folder: {object_key}")
         return
-    
+
     for attempt in range(max_retries):
         try:
             print(f"Processing {object_key}")
@@ -56,7 +57,7 @@ def transfer_s3_object(object_key, max_retries = 5, delay = 5):
 
             file_body = source_response['Body']
 
-            #Handling different formats
+            # Handling different formats
             if object_key.endswith(".csv"):
                 df = pd.read_csv(file_body)
 
@@ -77,23 +78,27 @@ def transfer_s3_object(object_key, max_retries = 5, delay = 5):
             parquet_key = f"bronze/s3/{object_key.rsplit('.', 1)[0]}.parquet"
 
             destination_s3.put_object(
-                Bucket = DESTINATION_BUCKET_NAME,
-                Key = parquet_key,
-                Body = parquet_buffer.getvalue()
+                Bucket=DESTINATION_BUCKET_NAME,
+                Key=parquet_key,
+                Body=parquet_buffer.getvalue()
             )
 
-            logging.info(f"Successfully converted and uploaded '{parquet_key}'")
+            logging.info(
+                f"Successfully converted and uploaded '{parquet_key}'")
             print(f"{parquet_key}")
             break
 
         except Exception as e:
-            logging.error(f"Error processing '{object_key}' on attempt {attempt}: {e}")
+            logging.error(
+                f"Error processing '{object_key}' on attempt {attempt}: {e}")
             print(f"Error transferring '{object_key}' attempt {attempt}: {e}")
 
             if attempt < max_retries:
                 time.sleep(delay)
             else:
-                logging.error(f"Failed after {max_retries} attempts: {object_key}")
+                logging.error(
+                    f"Failed after {max_retries} attempts: {object_key}")
+
 
 def transfer_all_objects():
     response = source_s3.list_objects_v2(Bucket=SOURCE_BUCKET_NAME)

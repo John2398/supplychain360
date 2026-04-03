@@ -2,7 +2,6 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
-import logging
 
 # Import existing extraction scripts
 from scripts import s3_ingestion, sheets_ingestion, postgresql_ingestion
@@ -63,9 +62,9 @@ with DAG(
     # dbt Docs
     dbt_docs = BashOperator(
         task_id="dbt_docs",
-        bash_command="cd /opt/supplychain360/supplychain360_dbt && dbt docs generate"
-    )
+        bash_command="cd /opt/supplychain360/supplychain360_dbt && dbt docs generate")
 
     # DAG Dependencies
     # Run all extractions in parallel, then run dbt
-    [extract_s3, extract_google_sheets, extract_postgres] >> dbt_run >> dbt_test >> dbt_docs
+    [extract_s3, extract_google_sheets,
+        extract_postgres] >> dbt_run >> dbt_test >> dbt_docs

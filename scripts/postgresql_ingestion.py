@@ -54,18 +54,18 @@ def get_ssm_parameter(ssm_client, param_name):
 
 def postgres_to_s3():
     """Extract sales tables from PostgreSQL and upload to S3 as Parquet files."""
-    
+
     logger.info("=" * 60)
     logger.info("PostgreSQL to S3 Transfer Script Started")
     logger.info(f"Destination Bucket: {DESTINATION_BUCKET}")
     logger.info(f"Database Host: {DB_HOST}")
     logger.info("=" * 60)
-    
+
     conn = None
     successful_uploads = 0
     failed_uploads = 0
     total_rows_processed = 0
-    
+
     try:
         # Initialize SSM client
         logger.info("Initializing AWS SSM client...")
@@ -84,7 +84,8 @@ def postgres_to_s3():
         logger.info("Database credentials retrieved successfully")
 
         # Connect to PostgreSQL
-        logger.info(f"Connecting to PostgreSQL database at {DB_HOST}:{DB_PORT}...")
+        logger.info(
+            f"Connecting to PostgreSQL database at {DB_HOST}:{DB_PORT}...")
         conn = psycopg2.connect(
             host=DB_HOST,
             port=DB_PORT,
@@ -104,7 +105,7 @@ def postgres_to_s3():
         """
         tables_df = pd.read_sql(query, conn)
         tables = tables_df['table_name'].to_list()
-        
+
         logger.info(f"Found {len(tables)} sales tables:")
         for table in tables:
             logger.info(f"  - {table}")
@@ -122,21 +123,25 @@ def postgres_to_s3():
         logger.info("\nStarting table extraction and upload process...")
         for idx, table in enumerate(tables, 1):
             logger.info(f"\n[{idx}/{len(tables)}] Processing table: {table}")
-            
+
             try:
                 # Extract data from PostgreSQL
                 logger.debug(f"Executing SELECT query on {table}")
                 start_time = datetime.now()
                 df = pd.read_sql(f'SELECT * FROM "{table}";', conn)
                 query_duration = (datetime.now() - start_time).total_seconds()
-                
+
                 rows, cols = df.shape
-                logger.info(f"  Retrieved {rows:,} rows, {cols} columns in {query_duration:.2f}s")
-                
+                logger.info(
+                    f"  Retrieved {
+                        rows:,} rows, {cols} columns in {
+                        query_duration:.2f}s")
+
                 if df.empty:
-                    logger.warning(f"  Table {table} is empty, skipping upload")
+                    logger.warning(
+                        f"  Table {table} is empty, skipping upload")
                     continue
-                
+
                 total_rows_processed += rows
 
                 # Convert to Parquet
@@ -144,21 +149,26 @@ def postgres_to_s3():
                 buffer = io.BytesIO()
                 df.to_parquet(buffer, engine='pyarrow', index=False)
                 parquet_size = buffer.tell()
-                logger.info(f"  Parquet file size: {parquet_size:,} bytes ({parquet_size / 1024 / 1024:.2f} MB)")
+                logger.info(
+                    f"  Parquet file size: {
+                        parquet_size:,} bytes ({
+                        parquet_size / 1024 / 1024:.2f} MB)")
 
                 # Upload to S3
                 s3_key = f"bronze/postgres/sales/{table}.parquet"
-                logger.debug(f"Uploading to s3://{DESTINATION_BUCKET}/{s3_key}")
-                
+                logger.debug(
+                    f"Uploading to s3://{DESTINATION_BUCKET}/{s3_key}")
+
                 s3_client.put_object(
                     Bucket=DESTINATION_BUCKET,
                     Key=s3_key,
                     Body=buffer.getvalue()
                 )
-                
-                logger.info(f"  ✓ Successfully uploaded to s3://{DESTINATION_BUCKET}/{s3_key}")
+
+                logger.info(
+                    f"  ✓ Successfully uploaded to s3://{DESTINATION_BUCKET}/{s3_key}")
                 successful_uploads += 1
-                
+
             except Exception as e:
                 logger.error(f"  ✗ Error processing table {table}: {str(e)}")
                 logger.error(f"  Error type: {type(e).__name__}")

@@ -25,9 +25,9 @@ logger = logging.getLogger(__name__)
 
 def upload_stores_to_s3():
     """Extract stores data from Google Sheets and upload to S3 as Parquet."""
-    
+
     logger.info("Starting Google Sheets to S3 transfer")
-    
+
     try:
         # Authenticate with Google Sheets
         logger.info("Authenticating with Google Sheets API")
@@ -35,26 +35,26 @@ def upload_stores_to_s3():
             "service_account.json",
             scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
         )
-        
+
         gc = gspread.authorize(creds)
         sheet = gc.open_by_key(SHEET_ID).sheet1
         logger.info(f"Connected to sheet: {sheet.title}")
-        
+
         # Extract data
         logger.info("Extracting data from Google Sheets")
         df = pd.DataFrame(sheet.get_all_records())
-        
+
         if df.empty:
             logger.error("DataFrame is empty, aborting upload")
             raise ValueError("Dataframe is empty, aborting upload")
-        
+
         rows, cols = df.shape
         logger.info(f"Retrieved {rows} rows, {cols} columns")
-        
+
         # Convert to Parquet
         logger.info("Converting to Parquet format")
         df.to_parquet("stores_data.parquet", engine="pyarrow", index=False)
-        
+
         # Upload to S3
         logger.info("Uploading to S3")
         s3 = boto3.client('s3')
@@ -63,9 +63,10 @@ def upload_stores_to_s3():
             "supplychain360-raw",
             "bronze/google_sheets/stores_data.parquet"
         )
-        
-        logger.info("✓ Successfully uploaded to s3://supplychain360-raw/bronze/google_sheets/stores_data.parquet")
-        
+
+        logger.info(
+            "✓ Successfully uploaded to s3://supplychain360-raw/bronze/google_sheets/stores_data.parquet")
+
     except FileNotFoundError:
         logger.error("service_account.json not found")
         raise
