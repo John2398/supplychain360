@@ -11,13 +11,13 @@ load_dotenv(dotenv_path="C:/Users/dara/supplychain360/.env")
 
 SOURCE_ACCESS_KEY = os.getenv("ACCESS_KEY")
 SOURCE_SECRET_KEY = os.getenv("SECRET_KEY")
-SSM_DB_USER = '/supplychain360/db/user'
-SSM_DB_PASSWORD = '/supplychain360/db/password'
-DB_HOST = 'aws-1-eu-west-1.pooler.supabase.com'
-DB_PORT = '6543'
-DB_NAME = 'postgres'
-DESTINATION_BUCKET = 'supplychain360-raw'
-DESTINATION_ACCOUNT_ID = '383136686205'
+SSM_DB_USER = "/supplychain360/db/user"
+SSM_DB_PASSWORD = "/supplychain360/db/password"
+DB_HOST = "aws-1-eu-west-1.pooler.supabase.com"
+DB_PORT = "6543"
+DB_NAME = "postgres"
+DESTINATION_BUCKET = "supplychain360-raw"
+DESTINATION_ACCOUNT_ID = "383136686205"
 
 # Create logs directory
 log_dir = "logs"
@@ -27,11 +27,8 @@ os.makedirs(log_dir, exist_ok=True)
 log_path = os.path.join(log_dir, "postgres_to_s3.log")
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_path),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler(log_path), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
@@ -41,12 +38,9 @@ def get_ssm_parameter(ssm_client, param_name):
     """Retrieve parameter from AWS Systems Manager Parameter Store."""
     try:
         logger.debug(f"Retrieving SSM parameter: {param_name}")
-        response = ssm_client.get_parameter(
-            Name=param_name,
-            WithDecryption=True
-        )
+        response = ssm_client.get_parameter(Name=param_name, WithDecryption=True)
         logger.info(f"Successfully retrieved SSM parameter: {param_name}")
-        return response['Parameter']['Value']
+        return response["Parameter"]["Value"]
     except Exception as e:
         logger.error(f"Failed to retrieve SSM parameter '{param_name}': {e}")
         raise
@@ -70,10 +64,10 @@ def postgres_to_s3():
         # Initialize SSM client
         logger.info("Initializing AWS SSM client...")
         ssm_client = boto3.client(
-            'ssm',
+            "ssm",
             aws_access_key_id=SOURCE_ACCESS_KEY,
             aws_secret_access_key=SOURCE_SECRET_KEY,
-            region_name='eu-west-2'
+            region_name="eu-west-2",
         )
         logger.info("SSM client initialized successfully")
 
@@ -84,14 +78,13 @@ def postgres_to_s3():
         logger.info("Database credentials retrieved successfully")
 
         # Connect to PostgreSQL
-        logger.info(
-            f"Connecting to PostgreSQL database at {DB_HOST}:{DB_PORT}...")
+        logger.info(f"Connecting to PostgreSQL database at {DB_HOST}:{DB_PORT}...")
         conn = psycopg2.connect(
             host=DB_HOST,
             port=DB_PORT,
             database=DB_NAME,
             user=db_user,
-            password=db_password
+            password=db_password,
         )
         logger.info("✓ Successfully connected to PostgreSQL database")
 
@@ -104,7 +97,7 @@ def postgres_to_s3():
             ORDER BY table_name;
         """
         tables_df = pd.read_sql(query, conn)
-        tables = tables_df['table_name'].to_list()
+        tables = tables_df["table_name"].to_list()
 
         logger.info(f"Found {len(tables)} sales tables:")
         for table in tables:
@@ -116,7 +109,7 @@ def postgres_to_s3():
 
         # Initialize S3 client
         logger.info("Initializing S3 client...")
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client("s3")
         logger.info("S3 client initialized successfully")
 
         # Process each table
@@ -133,11 +126,11 @@ def postgres_to_s3():
 
                 rows, cols = df.shape
                 logger.info(
-                    f"  Retrieved {rows:,} rows, {cols} columns in {query_duration:.2f}s")
+                    f"  Retrieved {rows:,} rows, {cols} columns in {query_duration:.2f}s"
+                )
 
                 if df.empty:
-                    logger.warning(
-                        f"  Table {table} is empty, skipping upload")
+                    logger.warning(f"  Table {table} is empty, skipping upload")
                     continue
 
                 total_rows_processed += rows
@@ -145,24 +138,23 @@ def postgres_to_s3():
                 # Convert to Parquet
                 logger.debug(f"Converting {table} to Parquet format")
                 buffer = io.BytesIO()
-                df.to_parquet(buffer, engine='pyarrow', index=False)
+                df.to_parquet(buffer, engine="pyarrow", index=False)
                 parquet_size = buffer.tell()
                 logger.info(
-                    f"  Parquet file size: {parquet_size:,} bytes ({parquet_size / 1024 / 1024:.2f} MB)")
+                    f"  Parquet file size: {parquet_size:,} bytes ({parquet_size / 1024 / 1024:.2f} MB)"
+                )
 
                 # Upload to S3
                 s3_key = f"bronze/postgres/sales/{table}.parquet"
-                logger.debug(
-                    f"Uploading to s3://{DESTINATION_BUCKET}/{s3_key}")
+                logger.debug(f"Uploading to s3://{DESTINATION_BUCKET}/{s3_key}")
 
                 s3_client.put_object(
-                    Bucket=DESTINATION_BUCKET,
-                    Key=s3_key,
-                    Body=buffer.getvalue()
+                    Bucket=DESTINATION_BUCKET, Key=s3_key, Body=buffer.getvalue()
                 )
 
                 logger.info(
-                    f"  ✓ Successfully uploaded to s3://{DESTINATION_BUCKET}/{s3_key}")
+                    f"  ✓ Successfully uploaded to s3://{DESTINATION_BUCKET}/{s3_key}"
+                )
                 successful_uploads += 1
 
             except Exception as e:

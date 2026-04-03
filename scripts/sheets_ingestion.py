@@ -13,11 +13,11 @@ os.makedirs(log_dir, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler(os.path.join(log_dir, "gsheets_to_s3.log")),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def upload_stores_to_s3():
         logger.info("Authenticating with Google Sheets API")
         creds = Credentials.from_service_account_file(
             "service_account.json",
-            scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"]
+            scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
         )
 
         gc = gspread.authorize(creds)
@@ -57,15 +57,16 @@ def upload_stores_to_s3():
 
         # Upload to S3
         logger.info("Uploading to S3")
-        s3 = boto3.client('s3')
+        s3 = boto3.client("s3")
         s3.upload_file(
             "stores_data.parquet",
             "supplychain360-raw",
-            "bronze/google_sheets/stores_data.parquet"
+            "bronze/google_sheets/stores_data.parquet",
         )
 
         logger.info(
-            "✓ Successfully uploaded to s3://supplychain360-raw/bronze/google_sheets/stores_data.parquet")
+            "✓ Successfully uploaded to s3://supplychain360-raw/bronze/google_sheets/stores_data.parquet"
+        )
 
     except FileNotFoundError:
         logger.error("service_account.json not found")
