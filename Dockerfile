@@ -8,7 +8,7 @@ USER airflow
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir dbt-core dbt-snowflake dbt-utils
+RUN pip install --no-cache-dir dbt-core dbt-snowflake
 
 COPY dags/ /opt/airflow/dags/
 COPY supplychain360_dbt/ /opt/airflow/dbt/
