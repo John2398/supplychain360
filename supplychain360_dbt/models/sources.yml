@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: SUPPLYCHAIN360
+    schema: BRONZE
+
+    tables:
+      - name: SALES_EXT
+      - name: SUPPLIERS_EXT
+      - name: WAREHOUSES_EXT
+      - name: INVENTORY_EXT
+      - name: PRODUCTS_EXT
+      - name: SHIPMENTS_EXT
+      - name: STORES_EXT
+      

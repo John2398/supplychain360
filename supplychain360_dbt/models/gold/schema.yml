@@ -1,0 +1,91 @@
+version: 2
+
+models:
+
+  - name: sales
+    description: "Fact table containing sales transactions"
+    columns:
+      - name: transaction_id
+        description: "Unique identifier for each transaction"
+        tests:
+          - not_null
+          - unique
+
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+
+      - name: store_id
+        tests:
+          - relationships:
+              to: ref('dim_stores')
+              field: store_id
+
+      - name: sale_amount
+        tests:
+          - not_null
+
+  - name: shipments
+    description: "Fact table tracking shipment and delivery performance"
+    columns:
+      - name: shipment_id
+        tests:
+          - not_null
+          - unique
+
+      - name: warehouse_id
+        tests:
+          - relationships:
+              to: ref('dim_warehouses')
+              field: warehouse_id
+
+      - name: actual_delivery_date
+        tests:
+          - not_null
+
+  - name: inventory
+    description: "Inventory snapshots for stock monitoring"
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+
+      - name: snapshot_date
+        tests:
+          - not_null
+
+
+  - name: products
+    description: "Product dimension table"
+    columns:
+      - name: product_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stores
+    description: "Store dimension table"
+    columns:
+      - name: store_id
+        tests:
+          - unique
+          - not_null
+
+  - name: suppliers
+    description: "Supplier dimension table"
+    columns:
+      - name: supplier_id
+        tests:
+          - unique
+          - not_null
+
+  - name: warehouses
+    description: "Warehouse dimension table"
+    columns:
+      - name: warehouse_id
+        tests:
+          - unique
+          - not_null

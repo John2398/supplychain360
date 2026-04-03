@@ -1,0 +1,10 @@
+boto3
+pandas
+pyarrow
+gspread
+google-auth
+oauth2client
+sqlalchemy
+psycopg2-binary
+snowflake-connector-python
+python-dotenv
