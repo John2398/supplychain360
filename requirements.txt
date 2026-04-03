@@ -1,10 +1,10 @@
 boto3
 pandas
-pyarrow
+pyarrow==11.0.0
 gspread
 google-auth
 oauth2client
 sqlalchemy
 psycopg2-binary
-snowflake-connector-python
+snowflake-connector-python==3.1.0
 python-dotenv
