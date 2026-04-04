@@ -20,7 +20,9 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install flake8 black pytest dbt-core dbt-snowflake
+          pip install flake8 black pytest 
+          pip install "snowflake-connector-python==3.12.0"
+          pip install dbt-core dbt-snowflake dbt --no-deps
 
       - name: Lint
         run: flake8 scripts dags --max-line-length=120
