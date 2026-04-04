@@ -6,5 +6,4 @@ google-auth
 oauth2client
 sqlalchemy
 psycopg2-binary
-snowflake-connector-python==3.12
 python-dotenv

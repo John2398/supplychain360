@@ -20,6 +20,7 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+          pip install "snowflake-connector-python==3.12.0" --no-deps
           pip install flake8 black pytest dbt-core dbt-snowflake
 
       - name: Lint
