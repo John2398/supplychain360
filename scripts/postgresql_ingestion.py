@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import boto3
 import psycopg2
 import pandas as pd
@@ -7,17 +8,17 @@ import os
 import logging
 from datetime import datetime
 
-load_dotenv(dotenv_path="C:/Users/dara/supplychain360/.env")
+load_dotenv()
 
 SOURCE_ACCESS_KEY = os.getenv("ACCESS_KEY")
 SOURCE_SECRET_KEY = os.getenv("SECRET_KEY")
-SSM_DB_USER = "/supplychain360/db/user"
-SSM_DB_PASSWORD = "/supplychain360/db/password"
-DB_HOST = "aws-1-eu-west-1.pooler.supabase.com"
-DB_PORT = "6543"
-DB_NAME = "postgres"
-DESTINATION_BUCKET = "supplychain360-raw"
-DESTINATION_ACCOUNT_ID = "383136686205"
+SSM_DB_USER = os.getenv("SSM_DB_USER")
+SSM_DB_PASSWORD = os.getenv("SSN_DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+DESTINATION_BUCKET = os.getenv("MY_BUCKET")
+DESTINATION_ACCOUNT_ID = os.getenv("MY_ACCOUNT_ID")
 
 # Create logs directory
 log_dir = "logs"
@@ -162,7 +163,7 @@ def postgres_to_s3():
                 logger.error(f"  Error type: {type(e).__name__}")
                 failed_uploads += 1
 
-        # Summary
+        # Logging Summary
         logger.info("\n" + "=" * 60)
         logger.info("TRANSFER SUMMARY")
         logger.info(f"Total tables found: {len(tables)}")

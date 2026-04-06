@@ -6,14 +6,14 @@ import logging
 import time
 import io
 
-load_dotenv(dotenv_path="C:/Users/dara/supplychain360/.env")
+load_dotenv()
 
 SOURCE_ACCESS_KEY = os.getenv("ACCESS_KEY")
 SOURCE_SECRET_KEY = os.getenv("SECRET_KEY")
 DESTINATION_AWS_ACCESS_KEY = os.getenv("MY_ACCESS_KEY")
 DESTINATION_AWS_SECRET_ACCESS_KEY = os.getenv("MY_SECRET_KEY")
-SOURCE_BUCKET_NAME = "supplychain360-data"
-DESTINATION_BUCKET_NAME = "supplychain360-raw"
+SOURCE_BUCKET_NAME = os.getenv("SOURCE_BUCKET")
+DESTINATION_BUCKET_NAME = os.getenv("MY_BUCKET")
 
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
@@ -48,7 +48,7 @@ def transfer_s3_object(object_key, max_retries=5, delay=5):
 
     for attempt in range(max_retries):
         try:
-            print(f"Processing {object_key}")
+            logging.info(f"Processing {object_key}")
 
             source_response = source_s3.get_object(
                 Bucket=SOURCE_BUCKET_NAME, Key=object_key
@@ -64,11 +64,11 @@ def transfer_s3_object(object_key, max_retries=5, delay=5):
                 df = pd.read_json(file_body)
 
             else:
-                print(f"Skipping unsupported file: {object_key}")
+                logging.info(f"Skipping unsupported file: {object_key}")
                 return
 
             if df.empty:
-                print(f"Empty file: {object_key}")
+                logging.info(f"Empty file: {object_key}")
                 return
 
             parquet_buffer = io.BytesIO()
@@ -83,12 +83,10 @@ def transfer_s3_object(object_key, max_retries=5, delay=5):
             )
 
             logging.info(f"Successfully converted and uploaded '{parquet_key}'")
-            print(f"{parquet_key}")
             break
 
         except Exception as e:
             logging.error(f"Error processing '{object_key}' on attempt {attempt}: {e}")
-            print(f"Error transferring '{object_key}' attempt {attempt}: {e}")
 
             if attempt < max_retries:
                 time.sleep(delay)
@@ -104,4 +102,3 @@ def transfer_all_objects():
             transfer_s3_object(obj["Key"])
     else:
         logging.warning("No objects found in the source bucket")
-        print("No objects found in the source bucket")

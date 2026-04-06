@@ -1,11 +1,15 @@
+from dotenv import load_dotenv
 import pandas as pd
 import boto3
 from google.oauth2.service_account import Credentials
 import gspread
 import logging
 import os
+from dotenv import load_dotenv
 
-SHEET_ID = "11wSeCppCJzTRuPLlkIWADJs4vehjxJUkKSDnvCsGGVo"
+load_dotenv()
+
+SHEET_ID = os.getenv("SHEET_ID")
 
 # Setup logging
 log_dir = "logs"
@@ -65,7 +69,7 @@ def upload_stores_to_s3():
         )
 
         logger.info(
-            "✓ Successfully uploaded to s3://supplychain360-raw/bronze/google_sheets/stores_data.parquet"
+            "✓ Successfully uploaded to s3 bucket"
         )
 
     except FileNotFoundError:
