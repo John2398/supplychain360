@@ -1,4 +1,7 @@
 import sys
+
+sys.path.append("/opt/airflow/scripts")
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
@@ -6,8 +9,6 @@ from datetime import datetime, timedelta
 import s3_ingestion
 import postgresql_ingestion
 import sheets_ingestion
-
-sys.path.append("/opt/airflow/scripts")
 
 default_args = {
     "owner": "dara",
@@ -78,4 +79,3 @@ with DAG(
     )
 
     [extract_s3, extract_google_sheets, extract_postgres] >> dbt_deps >> dbt_run >> dbt_test >> dbt_docs
-    
