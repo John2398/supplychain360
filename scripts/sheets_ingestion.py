@@ -36,7 +36,7 @@ def upload_stores_to_s3():
         # Authenticate with Google Sheets
         logger.info("Authenticating with Google Sheets API")
         creds = Credentials.from_service_account_file(
-            "service_account.json",
+            "/opt/airflow/service_account.json",
             scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"],
         )
 
@@ -61,7 +61,11 @@ def upload_stores_to_s3():
 
         # Upload to S3
         logger.info("Uploading to S3")
-        s3 = boto3.client("s3")
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=os.getenv("MY_ACCESS_KEY"),
+            aws_secret_access_key=os.getenv("MY_SECRET_KEY")
+        )
         s3.upload_file(
             "stores_data.parquet",
             "supplychain360-raw",

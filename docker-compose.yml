@@ -3,6 +3,8 @@ version: '3.8'
 x-airflow-common:
   &airflow-common
   build: .
+  env_file:
+    - .env
   environment:
     &airflow-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
@@ -11,12 +13,20 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOGGING_LEVEL: INFO
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW_UID: 50000
+    AWS_ACCESS_KEY_ID: ${MY_ACCESS_KEY}
+    AWS_SECRET_ACCESS_KEY: ${MY_SECRET_KEY}
+    AWS_DEFAULT_REGION: eu-north-1
+    SNOWFLAKE_USER: ${SNOWFLAKE_USER}
+    SNOWFLAKE_PRIVATE_KEY_PASSPHRASE: ${SNOWFLAKE_PRIVATE_KEY_PASSPHRASE}
   volumes:
-    - ./dags:/optsupplychain360/dags
-    - ./scripts:/opt/supplychain360/scripts
-    - ./supplychain360_dbt:/opt/supplychain360/supplychain360_dbt
+    - ./dags:/opt/airflow/dags
+    - ./scripts:/opt/airflow/scripts
+    - ./supplychain360_dbt:/opt/airflow/dbt_project
     - ./logs:/opt/airflow/logs
-    - ./.env:/opt/project/.env
+    - ./.env:/opt/airflow/.env
+    - ./scripts/service_account.json:/opt/airflow/service_account.json
+    - ./terraform/snowflake/rsa_key.p8:/opt/airflow/rsa_key.p8
   depends_on:
     - postgres
 
@@ -43,19 +53,14 @@ services:
     <<: *airflow-common
     command: scheduler
 
+  airflow-triggerer:
+    <<: *airflow-common
+    command: triggerer
+
   airflow-init:
     <<: *airflow-common
     command: >
-      bash -c "
-      airflow db init &&
-      airflow users create \
-        --username admin \
-        --password admin \
-        --firstname admin \
-        --lastname user \
-        --role Admin \
-        --email admin@example.com
-      "
+      bash -c "airflow db init && airflow users create --username admin --password admin --firstname admin --lastname user --role Admin --email admin@example.com"
     depends_on:
       - postgres
 

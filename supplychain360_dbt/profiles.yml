@@ -1,0 +1,14 @@
+supplychain360_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: zifzyaj-ug80595
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      private_key_path: /opt/airflow/rsa_key.p8
+      private_key_passphrase: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PASSPHRASE') }}"
+      role: ACCOUNTADMIN
+      database: SUPPLYCHAIN360
+      warehouse: SUPPLY360_WH
+      schema: DBT_DEV
+      threads: 4
