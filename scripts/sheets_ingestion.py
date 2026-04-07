@@ -5,7 +5,6 @@ from google.oauth2.service_account import Credentials
 import gspread
 import logging
 import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
