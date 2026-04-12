@@ -142,7 +142,7 @@ supplychain360/
 ├── setup.cfg
 ├── README.md
 └── .gitignore
-
+```
 HOW TO SETUP THE PROJECT
 
 1. Clone Project Structure
