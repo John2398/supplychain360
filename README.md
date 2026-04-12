@@ -64,7 +64,7 @@ Expected Outcomes
 
 
 PROJECT STRUCTURE
-
+'''bash
 supplychain360/
 ├── dags/
 │   └── pipeline.py
