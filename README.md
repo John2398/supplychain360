@@ -65,142 +65,83 @@ Expected Outcomes
 
 PROJECT STRUCTURE
 
-supplychain360
-├──dags
-│   └──pipeline.py
-├──scripts
-│   ├──postgresql_ingestion.py
-│   ├──s3_ingestion.py
-│   └──sheets_ingestion.py
-├──supplychain360_dbt
-│   ├──analyses
-│   │   └──.gitkeep
-│   ├──macros
-│   │   └──.gitkeep
-│   ├──models
-│   │   ├──gold
-│   │   │   ├──dimensions
-│   │   │   │   ├──products.sql
-│   │   │   │   ├──stores.sql
-│   │   │   │   ├──suppliers.sql
-│   │   │   │   └──warehouses.sql
-│   │   │   ├──facts
-│   │   │   │   ├──inventory.sql
-│   │   │   │   ├──product_stokout_trends.sql
-│   │   │   │   ├──regional_sales_demand.sql
-│   │   │   │   ├──sales.sql
-│   │   │   │   ├──shipments.sql
-│   │   │   │   ├──supplier_shipment_performance.sql
-│   │   │   │   └──warehouse_efficiency.sql
-│   │   │   └──schema.yml
-│   │   ├──silver
-│   │   │   ├──inventory_cleaned.sql
-│   │   │   ├──products_cleaned.sql
-│   │   │   ├──sales_cleaned.sql
-│   │   │   ├──shipments_cleaned.sql
-│   │   │   ├──stores_cleaned.sql
-│   │   │   ├──suppliers_cleaned.sql
-│   │   │   └──warehouses_cleaned.sql
-│   │   └──sources.yml
-│   ├──seeds
-│   │   └──.gitkeep
-│   ├──snapshots
-│   │   └──.gitkeep
-│   ├──target
-│   │   ├──compiled
-│   │   │   └──supplychain360_dbt
-│   │   │   │   └──models
-│   │   │   │   │   ├──example
-│   │   │   │   │   │   ├──my_first_dbt_model.sql
-│   │   │   │   │   │   └──my_second_dbt_model.sql
-│   │   │   │   │   ├──gold
-│   │   │   │   │   │   ├──dimensions
-│   │   │   │   │   │   │   ├──products.sql
-│   │   │   │   │   │   │   ├──stores.sql
-│   │   │   │   │   │   │   ├──suppliers.sql
-│   │   │   │   │   │   │   └──warehouses.sql
-│   │   │   │   │   │   └──facts
-│   │   │   │   │   │   │   ├──inventory.sql
-│   │   │   │   │   │   │   ├──product_stokout_trends.sql
-│   │   │   │   │   │   │   ├──regional_sales_demand.sql
-│   │   │   │   │   │   │   ├──sales.sql
-│   │   │   │   │   │   │   ├──shipments.sql
-│   │   │   │   │   │   │   ├──supplier_shipment_performance.sql
-│   │   │   │   │   │   │   ├──warehouse_efficciency.sql
-│   │   │   │   │   │   │   └──warehouse_efficiency.sql
-│   │   │   │   │   └──silver
-│   │   │   │   │   │   ├──inventory_cleaned.sql
-│   │   │   │   │   │   ├──products_cleaned.sql
-│   │   │   │   │   │   ├──sales_cleaned.sql
-│   │   │   │   │   │   ├──shipments_cleaned.sql
-│   │   │   │   │   │   ├──stores_cleaned.sql
-│   │   │   │   │   │   ├──suppliers_cleaned.sql
-│   │   │   │   │   │   └──warehouses_cleaned.sql
-│   │   ├──run
-│   │   │   └──supplychain360_dbt
-│   │   │   │   └──models
-│   │   │   │   │   ├──example
-│   │   │   │   │   │   ├──my_first_dbt_model.sql
-│   │   │   │   │   │   └──my_second_dbt_model.sql
-│   │   │   │   │   ├──gold
-│   │   │   │   │   │   ├──dimensions
-│   │   │   │   │   │   │   ├──products.sql
-│   │   │   │   │   │   │   ├──stores.sql
-│   │   │   │   │   │   │   ├──suppliers.sql
-│   │   │   │   │   │   │   └──warehouses.sql
-│   │   │   │   │   │   └──facts
-│   │   │   │   │   │   │   ├──inventory.sql
-│   │   │   │   │   │   │   ├──product_stokout_trends.sql
-│   │   │   │   │   │   │   ├──regional_sales_demand.sql
-│   │   │   │   │   │   │   ├──sales.sql
-│   │   │   │   │   │   │   ├──shipments.sql
-│   │   │   │   │   │   │   ├──supplier_shipment_performance.sql
-│   │   │   │   │   │   │   ├──warehouse_efficciency.sql
-│   │   │   │   │   │   │   └──warehouse_efficiency.sql
-│   │   │   │   │   └──silver
-│   │   │   │   │   │   ├──inventory_cleaned.sql
-│   │   │   │   │   │   ├──products_cleaned.sql
-│   │   │   │   │   │   ├──sales_cleaned.sql
-│   │   │   │   │   │   ├──shipments_cleaned.sql
-│   │   │   │   │   │   ├──stores_cleaned.sql
-│   │   │   │   │   │   ├──suppliers_cleaned.sql
-│   │   │   │   │   │   └──warehouses_cleaned.sql
-│   │   ├──graph.gpickle
-│   │   └──partial_parse.msgpack
-│   ├──tests
-│   │   └──.gitkeep
-│   ├──dbt_project.yml
-│   ├──packages.yml
-│   ├──README.md
-│   └──.gitignore
-├──terraform
-│   ├──aws
-│   │   ├──backend.tf
-│   │   ├──main.tf
-│   │   ├──outputs.tf
-│   │   └──provider.tf
-│   └──snowflake
-│   │   ├──backend.tf
-│   │   ├──database.tf
-│   │   ├──external_table.tf
-│   │   ├──file_format.tf
-│   │   ├──provider.tf
-│   │   ├──schema.tf
-│   │   ├──stage.tf
-│   │   ├──variables.tf
-│   │   └──warehouse.tf
-├──.github
-│   └──workflows
-│   │   └──ci_cd.yml
-├──Capstone_Project_Architecture.drawio
-├──docker-compose.yml
-├──Dockerfile
-├──README.md
-├──requirements.txt
-├──setup.cfg
-└──.gitignore
-```
-
+supplychain360/
+├── dags/
+│   └── pipeline.py
+│
+├── scripts/
+│   ├── postgresql_ingestion.py
+│   ├── s3_ingestion.py
+│   └── sheets_ingestion.py
+│
+├── supplychain360_dbt/
+│   ├── models/
+│   │   ├── silver/
+│   │   │   ├── inventory_cleaned.sql
+│   │   │   ├── products_cleaned.sql
+│   │   │   ├── sales_cleaned.sql
+│   │   │   ├── shipments_cleaned.sql
+│   │   │   ├── stores_cleaned.sql
+│   │   │   ├── suppliers_cleaned.sql
+│   │   │   └── warehouses_cleaned.sql
+│   │   │
+│   │   ├── gold/
+│   │   │   ├── dimensions/
+│   │   │   │   ├── products.sql
+│   │   │   │   ├── stores.sql
+│   │   │   │   ├── suppliers.sql
+│   │   │   │   └── warehouses.sql
+│   │   │   │
+│   │   │   ├── facts/
+│   │   │   │   ├── inventory.sql
+│   │   │   │   ├── product_stockout_trends.sql
+│   │   │   │   ├── regional_sales_demand.sql
+│   │   │   │   ├── sales.sql
+│   │   │   │   ├── shipments.sql
+│   │   │   │   ├── supplier_shipment_performance.sql
+│   │   │   │   └── warehouse_efficiency.sql
+│   │   │   │
+│   │   │   └── schema.yml
+│   │   │
+│   │   └── sources.yml
+│   │
+│   ├── macros/
+│   ├── analyses/
+│   ├── seeds/
+│   ├── snapshots/
+│   ├── tests/
+│   │
+│   ├── dbt_project.yml
+│   └── packages.yml
+│
+├── terraform/
+│   ├── aws/
+│   │   ├── backend.tf
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── provider.tf
+│   │
+│   └── snowflake/
+│       ├── backend.tf
+│       ├── database.tf
+│       ├── external_table.tf
+│       ├── file_format.tf
+│       ├── schema.tf
+│       ├── stage.tf
+│       ├── warehouse.tf
+│       ├── variables.tf
+│       └── provider.tf
+│
+├── .github/
+│   └── workflows/
+│       └── ci_cd.yml
+│
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+├── setup.cfg
+├── README.md
+└── .gitignore
 
 HOW TO SETUP THE PROJECT
 
@@ -289,7 +230,7 @@ airflow scheduler
 airflow webserver
 DAGs should appear in the UI (localhost:8080).
 
-7.  Dockerize the Project (Optional but Recommended)
+7.  Dockerize the Project
 
 Dockerfile Example:
 
